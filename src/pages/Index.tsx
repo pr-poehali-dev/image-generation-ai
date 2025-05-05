@@ -1,15 +1,16 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Send, Loader2, Download, Rocket, MessageSquare, History } from "lucide-react";
-import GeneratedGallery from "@/components/GeneratedGallery";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
 
+  // Примеры изображений для демонстрации
   const sampleImages = [
     "https://images.unsplash.com/photo-1637581525432-a1a242bc1144?q=80&w=800&auto=format",
     "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=800&auto=format",
@@ -22,11 +23,14 @@ const Index = () => {
     
     setIsGenerating(true);
     
+    // Имитация запроса к API
     setTimeout(() => {
+      // Генерируем 2-4 изображения для демонстрации
       const numberOfImages = Math.floor(Math.random() * 3) + 2;
       const randomImages = [];
       
       for (let i = 0; i < numberOfImages; i++) {
+        // Выбираем случайные изображения из примеров
         const randomIndex = Math.floor(Math.random() * sampleImages.length);
         randomImages.push(sampleImages[randomIndex]);
       }
@@ -98,7 +102,37 @@ const Index = () => {
               </CardFooter>
             </Card>
 
-            <GeneratedGallery images={generatedImages} />
+            {/* Отображаем результаты генерации */}
+            {generatedImages.length > 0 && (
+              <Card className="mt-6 shadow-md">
+                <CardHeader>
+                  <CardTitle>Результаты генерации</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {generatedImages.map((image, index) => (
+                      <div key={index} className="relative overflow-hidden rounded-lg group">
+                        <img 
+                          src={image} 
+                          alt={`Сгенерированное изображение ${index + 1}`} 
+                          className="w-full h-auto object-cover aspect-square"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button 
+                            className="bg-white/80 text-black hover:bg-white"
+                            onClick={() => window.open(image, '_blank')}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Скачать
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -153,7 +187,7 @@ const Index = () => {
         </div>
 
         <footer className="mt-20 text-center text-gray-500 text-sm">
-          <p> 2025 НейроХудожник. Для связи: <a href="https://t.me/Vocoders" className="text-blue-600 hover:underline">t.me/Vocoders</a></p>
+          <p>© 2025 НейроХудожник. Для связи: <a href="https://t.me/Vocoders" className="text-blue-600 hover:underline">t.me/Vocoders</a></p>
         </footer>
       </div>
     </div>
