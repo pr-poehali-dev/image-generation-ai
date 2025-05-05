@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,96 +7,81 @@ import { Sparkles, Send, Loader2, Download, MessageSquare } from "lucide-react";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [results, setResults] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
 
-  // Примеры для демонстрации
+  // Демо-изображения
   const demoImages = [
-    "https://images.unsplash.com/photo-1637581525432-a1a242bc1144?q=80&w=800&auto=format",
-    "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=800&auto=format",
-    "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?q=80&w=800&auto=format",
-    "https://images.unsplash.com/photo-1694822449914-1f58855d7acb?q=80&w=800&auto=format"
+    "https://images.unsplash.com/photo-1637581525432-a1a242bc1144",
+    "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4",
+    "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead",
+    "https://images.unsplash.com/photo-1694822449914-1f58855d7acb"
   ];
 
-  const examplePrompts = [
+  // Примеры промптов
+  const examples = [
     "Космический корабль над марсианской колонией",
-    "Русалка в глубинах океана с коралловыми рифами", 
+    "Русалка в глубинах океана", 
     "Футуристический город с летающими машинами",
     "Средневековый замок в горах на рассвете"
   ];
 
-  const handleGenerate = () => {
-    if (!prompt.trim()) return;
+  const handleSubmit = () => {
+    if (!prompt || isLoading) return;
     
-    setIsGenerating(true);
+    setIsLoading(true);
     
-    // Имитируем запрос к API
+    // Имитация API-запроса
     setTimeout(() => {
-      // Генерируем случайное количество изображений (от 2 до 4)
+      // Выбираем 2-4 случайных изображения
+      const shuffledImages = [...demoImages].sort(() => 0.5 - Math.random());
       const count = Math.floor(Math.random() * 3) + 2;
-      const generatedImages = [];
+      const selected = shuffledImages.slice(0, count);
       
-      // Создаем массив с индексами изображений и перемешиваем его
-      const indices = [...Array(demoImages.length).keys()];
-      // Функция перемешивания массива (алгоритм Фишера-Йейтса)
-      for (let i = indices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-      }
+      // Добавляем случайный параметр, чтобы избежать кэширования
+      const timestamp = new Date().getTime();
+      const results = selected.map(img => `${img}?random=${timestamp}`);
       
-      // Берем первые count случайных индексов из перемешанного массива
-      for (let i = 0; i < count; i++) {
-        generatedImages.push(demoImages[indices[i % indices.length]]);
-      }
-      
-      // Добавляем метку времени к URL, чтобы избежать кэширования
-      const timestamp = Date.now();
-      const resultsWithTimestamp = generatedImages.map(img => 
-        img.includes('?') ? `${img}&t=${timestamp}` : `${img}?t=${timestamp}`
-      );
-      
-      setResults(resultsWithTimestamp);
-      setIsGenerating(false);
+      setImages(results);
+      setIsLoading(false);
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white py-10 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Шапка */}
-        <header className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 flex items-center justify-center gap-2">
-            <Sparkles className="text-indigo-600" />
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <header className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2 flex items-center justify-center">
+            <Sparkles className="mr-2 text-indigo-500" />
             НейроХудожник
           </h1>
-          <p className="mt-3 text-lg text-gray-600 max-w-xl mx-auto">
-            Создавайте уникальные изображения по текстовому описанию с помощью нейросети
+          <p className="text-gray-600">
+            Генерация изображений с помощью ИИ
           </p>
         </header>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Левая колонка - ввод запроса */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           <div className="md:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Опишите желаемое изображение</CardTitle>
-                <CardDescription>Детальное описание повышает качество результата</CardDescription>
+                <CardTitle>Создать изображение</CardTitle>
+                <CardDescription>Опишите что хотите увидеть</CardDescription>
               </CardHeader>
               <CardContent>
                 <Textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Например: горная долина на закате, в небе летят птицы"
+                  placeholder="Например: горная долина на закате"
                   className="min-h-[120px]"
                 />
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
+                  onClick={handleSubmit}
+                  disabled={isLoading || !prompt.trim()}
                   className="bg-indigo-600 hover:bg-indigo-700"
                 >
-                  {isGenerating ? (
+                  {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Генерация...
@@ -109,7 +95,7 @@ const Index = () => {
                   href="https://t.me/Vocoders" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center text-indigo-600 hover:text-indigo-800"
+                  className="text-indigo-600 hover:underline flex items-center"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Telegram канал
@@ -117,25 +103,26 @@ const Index = () => {
               </CardFooter>
             </Card>
 
-            {/* Результаты генерации */}
-            {results.length > 0 && (
+            {/* Результаты */}
+            {images.length > 0 && (
               <Card className="mt-6">
                 <CardHeader>
-                  <CardTitle>Результаты генерации</CardTitle>
+                  <CardTitle>Результаты</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {results.map((image, index) => (
-                      <div key={index} className="relative overflow-hidden rounded-lg group">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative rounded-lg overflow-hidden aspect-square">
                         <img 
-                          src={image} 
-                          alt={`Результат ${index + 1}`}
-                          className="w-full h-auto object-cover aspect-square" 
+                          src={img} 
+                          alt={`Результат ${idx+1}`} 
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Button 
-                            className="bg-white text-black hover:bg-white/90"
-                            onClick={() => window.open(image, '_blank')}
+                            variant="outline"
+                            className="bg-white text-black hover:bg-white/90 border-none"
+                            onClick={() => window.open(img, '_blank')}
                           >
                             <Download className="mr-2 h-4 w-4" />
                             Скачать
@@ -149,17 +136,17 @@ const Index = () => {
             )}
           </div>
 
-          {/* Правая колонка - примеры */}
+          {/* Правая колонка */}
           <div>
             <Card>
               <CardHeader>
                 <CardTitle>Примеры запросов</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {examplePrompts.map((example, i) => (
+                <div className="space-y-2">
+                  {examples.map((example, idx) => (
                     <Button 
-                      key={i}
+                      key={idx}
                       variant="ghost" 
                       className="w-full justify-start text-left"
                       onClick={() => setPrompt(example)}
@@ -178,12 +165,12 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-2">
-                  {demoImages.map((img, i) => (
-                    <div key={i} className="aspect-square rounded-md overflow-hidden">
+                  {demoImages.map((img, idx) => (
+                    <div key={idx} className="rounded-md overflow-hidden aspect-square">
                       <img 
                         src={img} 
-                        alt={`Пример ${i+1}`}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+                        alt={`Пример ${idx+1}`} 
+                        className="w-full h-full object-cover" 
                       />
                     </div>
                   ))}
@@ -194,7 +181,7 @@ const Index = () => {
         </div>
 
         <footer className="mt-12 text-center text-gray-500">
-          <p> 2025 НейроХудожник | <a href="https://t.me/Vocoders" className="text-indigo-600 hover:underline">t.me/Vocoders</a></p>
+          <p>© 2025 НейроХудожник | <a href="https://t.me/Vocoders" className="text-indigo-600 hover:underline">t.me/Vocoders</a></p>
         </footer>
       </div>
     </div>
