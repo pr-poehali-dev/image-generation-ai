@@ -1,23 +1,37 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Send, Loader2, Download, Rocket, MessageSquare } from "lucide-react";
+import { Sparkles, Send, Loader2, Download, Rocket, MessageSquare, History } from "lucide-react";
+import GeneratedGallery from "@/components/GeneratedGallery";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+
+  const sampleImages = [
+    "https://images.unsplash.com/photo-1637581525432-a1a242bc1144?q=80&w=800&auto=format",
+    "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=800&auto=format",
+    "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?q=80&w=800&auto=format",
+    "https://images.unsplash.com/photo-1694822449914-1f58855d7acb?q=80&w=800&auto=format"
+  ];
 
   const handleGenerate = () => {
     if (!prompt.trim()) return;
     
     setIsGenerating(true);
-    // Имитация запроса к API
+    
     setTimeout(() => {
-      // В реальном приложении здесь будет запрос к API нейросети
-      setGeneratedImage("https://images.unsplash.com/photo-1637581525432-a1a242bc1144?q=80&w=800&auto=format");
+      const numberOfImages = Math.floor(Math.random() * 3) + 2;
+      const randomImages = [];
+      
+      for (let i = 0; i < numberOfImages; i++) {
+        const randomIndex = Math.floor(Math.random() * sampleImages.length);
+        randomImages.push(sampleImages[randomIndex]);
+      }
+      
+      setGeneratedImages(randomImages);
       setIsGenerating(false);
     }, 2000);
   };
@@ -36,7 +50,7 @@ const Index = () => {
           </p>
         </header>
 
-        <div className="max-w-3xl mx-auto grid gap-8 md:grid-cols-[1fr_auto] items-start">
+        <div className="max-w-4xl mx-auto grid gap-8 md:grid-cols-[1fr_auto] items-start">
           <div>
             <Card className="shadow-md">
               <CardHeader>
@@ -84,60 +98,62 @@ const Index = () => {
               </CardFooter>
             </Card>
 
-            {generatedImage && (
-              <Card className="mt-6 shadow-md">
-                <CardHeader>
-                  <CardTitle>Результат</CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  <div className="relative overflow-hidden rounded-lg">
-                    <img 
-                      src={generatedImage} 
-                      alt="Сгенерированное изображение" 
-                      className="max-w-full h-auto"
-                    />
-                    <Button 
-                      size="sm" 
-                      className="absolute bottom-2 right-2 bg-white/80 text-black hover:bg-white"
-                      onClick={() => window.open(generatedImage, '_blank')}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Скачать
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <GeneratedGallery images={generatedImages} />
           </div>
 
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Примеры запросов</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {["Космический корабль над марсианской колонией", 
-                  "Русалка в глубинах океана", 
-                  "Футуристический город с летающими машинами"
-                ].map((example, i) => (
-                  <li key={i}>
-                    <Button 
-                      variant="ghost" 
-                      className="text-left justify-start w-full hover:bg-purple-50"
-                      onClick={() => setPrompt(example)}
-                    >
-                      <Send className="mr-2 h-4 w-4 text-purple-500" />
-                      {example}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="shadow-md">
+              <CardHeader>
+                <CardTitle>Примеры запросов</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {["Космический корабль над марсианской колонией", 
+                    "Русалка в глубинах океана", 
+                    "Футуристический город с летающими машинами",
+                    "Средневековый замок в горах на рассвете"
+                  ].map((example, i) => (
+                    <li key={i}>
+                      <Button 
+                        variant="ghost" 
+                        className="text-left justify-start w-full hover:bg-purple-50"
+                        onClick={() => setPrompt(example)}
+                      >
+                        <Send className="mr-2 h-4 w-4 text-purple-500 shrink-0" />
+                        <span className="truncate">{example}</span>
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <History className="mr-2 h-4 w-4" />
+                  Недавние генерации
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  {sampleImages.slice(0, 4).map((img, i) => (
+                    <div key={i} className="aspect-square rounded-md overflow-hidden">
+                      <img 
+                        src={img} 
+                        alt={`Пример ${i+1}`} 
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <footer className="mt-20 text-center text-gray-500 text-sm">
-          <p>© 2025 НейроХудожник. Для связи: <a href="https://t.me/Vocoders" className="text-blue-600 hover:underline">t.me/Vocoders</a></p>
+          <p> 2025 НейроХудожник. Для связи: <a href="https://t.me/Vocoders" className="text-blue-600 hover:underline">t.me/Vocoders</a></p>
         </footer>
       </div>
     </div>
