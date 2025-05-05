@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,12 +35,26 @@ const Index = () => {
       const count = Math.floor(Math.random() * 3) + 2;
       const generatedImages = [];
       
-      for (let i = 0; i < count; i++) {
-        const randomIndex = Math.floor(Math.random() * demoImages.length);
-        generatedImages.push(demoImages[randomIndex]);
+      // Создаем массив с индексами изображений и перемешиваем его
+      const indices = [...Array(demoImages.length).keys()];
+      // Функция перемешивания массива (алгоритм Фишера-Йейтса)
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
       }
       
-      setResults(generatedImages);
+      // Берем первые count случайных индексов из перемешанного массива
+      for (let i = 0; i < count; i++) {
+        generatedImages.push(demoImages[indices[i % indices.length]]);
+      }
+      
+      // Добавляем метку времени к URL, чтобы избежать кэширования
+      const timestamp = Date.now();
+      const resultsWithTimestamp = generatedImages.map(img => 
+        img.includes('?') ? `${img}&t=${timestamp}` : `${img}?t=${timestamp}`
+      );
+      
+      setResults(resultsWithTimestamp);
       setIsGenerating(false);
     }, 1500);
   };
@@ -181,7 +194,7 @@ const Index = () => {
         </div>
 
         <footer className="mt-12 text-center text-gray-500">
-          <p>© 2025 НейроХудожник | <a href="https://t.me/Vocoders" className="text-indigo-600 hover:underline">t.me/Vocoders</a></p>
+          <p> 2025 НейроХудожник | <a href="https://t.me/Vocoders" className="text-indigo-600 hover:underline">t.me/Vocoders</a></p>
         </footer>
       </div>
     </div>
